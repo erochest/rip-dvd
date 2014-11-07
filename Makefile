@@ -14,7 +14,7 @@ specs: build
 	./dist/build/rip-dvd-specs/rip-dvd-specs
 
 run:
-	cabal run
+	cabal run -- dr-who-s04d11
 
 # docs:
 # generate api documentation
