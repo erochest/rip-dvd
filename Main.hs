@@ -38,6 +38,10 @@ main = execParser opts >>= \(BaseName baseName) ->
     output <- (<.> "iso") . (</> fromText baseName) <$> liftIO dvdDir
     let disk'   = T.pack $ show disk
         output' = toTextIgnore output
+
+    whenM (test_f output) $
+        errorExit $ output' <> " exists. Bailing."
+
     echo $ "ripping " <> disk' <> " to " <> output'
 
     unmount_ disk
