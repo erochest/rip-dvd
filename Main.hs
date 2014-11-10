@@ -1,5 +1,6 @@
 {-# LANGUAGE ExtendedDefaultRules #-}
 {-# LANGUAGE OverloadedStrings    #-}
+{-# LANGUAGE RecordWildCards      #-}
 
 
 module Main where
@@ -19,8 +20,11 @@ default (T.Text)
 dvdDir :: IO FilePath
 dvdDir = fmap (</> ("dvds" :: FilePath)) FS.getHomeDirectory
 
-newtype BaseName = BaseName { unBaseName :: T.Text }
-                   deriving (Show, Eq)
+
+data Opts = Opts
+          { force    :: !Bool
+          , baseName :: !T.Text
+          } deriving (Show, Eq)
 
 newtype Disk = Disk { unDisk :: Int }
                deriving (Eq)
@@ -30,7 +34,7 @@ instance Show Disk where
 
 
 main :: IO ()
-main = execParser opts >>= \(BaseName baseName) ->
+main = execParser opts >>= \Opts{..} ->
     shelly $ verbosely $ do
 
     diskutil_ "list" []
@@ -40,7 +44,9 @@ main = execParser opts >>= \(BaseName baseName) ->
         output' = toTextIgnore output
 
     whenM (test_f output) $
-        errorExit $ output' <> " exists. Bailing."
+        if force
+            then echo      $ output' <> " exists. Clobbering."
+            else errorExit $ output' <> " exists. Bailing."
 
     echo $ "ripping " <> disk' <> " to " <> output'
 
@@ -76,12 +82,15 @@ readDisk :: T.Text -> Sh Disk
 readDisk = const (Disk <$> liftIO readLn) <=< echo_n
 
 
-opts' :: Parser BaseName
-opts' =   BaseName
-      <$> argument readText (  metavar "BASENAME"
+opts' :: Parser Opts
+opts' =   Opts
+      <$> switch (  short 'f'
+                 <> long "force"
+                 <> help "Force overwriting existing output files.")
+      <*> argument readText (  metavar "BASENAME"
                             <> help "Rips to dvds/[BASENAME].iso.")
 
-opts :: ParserInfo BaseName
+opts :: ParserInfo Opts
 opts = info (helper <*> opts')
             (  fullDesc
             <> progDesc "Rips a DVD to an ISO."
