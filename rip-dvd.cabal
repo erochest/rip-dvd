@@ -19,14 +19,14 @@ library
   -- exposed-modules:     
   -- other-modules:       
   -- other-extensions:    
-  build-depends:       base >=4.7 && <4.8
+  build-depends:       base >=4.7 && <5
   -- hs-source-dirs:      
   default-language:    Haskell2010
 executable rip-dvd
   main-is:             Main.hs
   -- other-modules:       
   -- other-extensions:    
-  build-depends:       base >=4.7 && <4.8
+  build-depends:       base >=4.7 && <5
                      , rip-dvd
                      , text
                      , optparse-applicative
@@ -41,7 +41,7 @@ test-suite rip-dvd-specs
   ghc-options:         -threaded -rtsopts
   hs-source-dirs:      specs
   main-is:             Specs.hs
-  build-depends:         base       == 4.7.*
+  build-depends:         base
                        , QuickCheck
                        , smallcheck
                        , hspec
